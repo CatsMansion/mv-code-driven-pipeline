@@ -1,0 +1,31 @@
+# ---- 凭据 / 密钥（永远不要提交）----
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.token
+*_secret*
+*_credential*
+secrets/
+credentials/
+
+# ---- 运行时产物 ----
+__pycache__/
+*.py[cod]
+report.json
+bbox.json
+qc.report.json
+_node/
+node_modules/
+render/
+stills/
+*.mp4
+*.wav
+*.mp3
+
+# ---- 系统 ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

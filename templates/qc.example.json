@@ -1,0 +1,45 @@
+{
+  "_note": "qc_scan.py 的输入示例。bbox 必须由 probe_bbox.py 生成后粘进来，⛔ 不要手写。",
+  "canvas": [1920, 1080],
+  "criteria": {
+    "min_slit": 120,
+    "warmup": 0.25,
+    "edge_margin": 180,
+    "fps": 30
+  },
+  "bbox": {
+    "01": { "size": [1536, 1024], "box": [364, 511, 728, 1023] },
+    "07": { "size": [1536, 1024], "box": [781, 511, 1508, 1023] }
+  },
+  "shots": [
+    {
+      "id": "S1",
+      "t0": 40.0,
+      "t1": 42.93,
+      "img": "01",
+      "hFrac": 0.88,
+      "cx": 700,
+      "cy": 470,
+      "face": [0.5, 0.5],
+      "slit": {
+        "dir": "v",
+        "segs": [
+          { "at": [0.0, 1.1], "from": 180, "to": 420, "center": 326, "ease": "outExpo" },
+          { "at": [1.1, 2.75], "from": 420, "to": 720, "c0": 326, "c1": 420, "ease": "inOutSine" }
+        ]
+      },
+      "breatheSlit": 26
+    },
+    {
+      "id": "S6",
+      "t0": 42.93,
+      "t1": 45.49,
+      "img": "07",
+      "hFrac": 1.27,
+      "cx": 943,
+      "cy": 540,
+      "slit": { "dir": "none" },
+      "breatheSlit": 0
+    }
+  ]
+}
