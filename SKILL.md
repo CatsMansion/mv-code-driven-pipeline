@@ -4,9 +4,9 @@ slug: mv-code-driven-pipeline
 displayName: Code-Driven MV Pipeline
 display_name: "代码驱动 MV 制作管线"
 description: Produce a music video as a deterministic code timeline instead of an edit — thesis → measured beats → shot list → masked scene code → geometric precheck → render → A/B contact sheet → verified handover pack. Ships four zero-dependency tools (bbox probe, sprite-anchor solver, render-time geometry QC with dual controls, handover packer with rebuild verification) plus a masked-band scene template and shot-list/audio-alignment contracts. Use when the user asks to make an MV, lyric video, music visualization, beat-synced animation, or asks why characters get cut off / why a cut feels static / how to make a second chorus hit harder.
-description_zh: 用「代码时间轴」而不是剪辑做 MV：thesis → 实测节拍 → 分镜 → 遮罩场景代码 → 渲染前几何预检 → 渲染 → 对照板 → 带重建验证的交接包。附 4 个零依赖工具（bbox 探测 / sprite 锚点反解 / 几何 QC 双对照 / 打包重建校验）与场景、分镜模板。
+description_zh: 用「代码时间轴」而不是剪辑做 MV：thesis → 实测节拍 → 分镜 → 遮罩场景代码 → 渲染前几何预检 → 渲染 → 对照板 → 带重建验证的交接包。附 4 个零依赖工具（bbox 探测 / sprite 锚点反解 / 几何 QC 双对照 / 打包重建校验）与场景、分镜模板。另含「整片色块预演」——花生成积分之前先把全片跑成成片时长的低保真片。
 category: creative
-version: 1.0.0
+version: 1.1.0
 author: CatsMansion
 agent_created: true
 visibility: public
@@ -27,7 +27,7 @@ visibility: public
 
 **不用**：纯剪辑（素材是视频）、纯生成式视频、单张海报。
 
-## 六条铁律
+## 七条铁律
 
 1. **先 thesis，后画面。** 一句话视觉机制说不出来，就不要打开引擎。机制 ≠ 氛围（`docs/principles.md` §2）。
 2. **节拍一律实测。** ⛔ 不抄文档 BPM。实测与文档差 0.4s 是常态，错一个强拍整支片就假。
@@ -35,6 +35,9 @@ visibility: public
 4. **遮罩镜头之间只能硬切。** 用 xfade/wipe 会让两条反向遮罩同时存在，画面出现「十字」。
 5. **递进改「质」不改「量」。** 带宽 ±8%、字号 +14 这种量变，观众看不见（`docs/pitfalls.md` §6）。
 6. **渲染前必跑 `qc_scan.py`。** ⛔ 不要肉眼逐帧看 700 帧找"人在哪一帧消失"。
+7. **花生成积分之前，先把整片跑成色块预演。** ⛔ 不要等到素材烧完才发现顺序/景别不对。
+   做法见 `docs/previz-blockout.md`：已有立绘做单色剪影 + 代码渲的色块场景，按分镜表逐帧跑到成片时长、带原声。
+   它只证明顺序 / 景别 / 节奏 / 亮度，**不证明好不好看**。
 
 ## 九阶段与闸门
 
@@ -45,6 +48,7 @@ visibility: public
 | 2 | 定 thesis | `templates/concept.md` | 一句话机制，且在歌词里有依据 |
 | 3 | 出素材 | 角色母版 → 姿势 → 统一背景 → `probe_bbox.py` | 每张留白 ≥60px、Δlum ≥76 |
 | 4 | 分镜 | `templates/storyboard.md` 12 项参数 | 遮罩形态不连用；事件率 0.8–1.1/s |
+| 4.5 | **整片色块预演** | 立绘剪影 + 色块场景，逐格渲到成片时长（`docs/previz-blockout.md`） | 帧数对得上 + 每个接缝双侧抽帧核格号 + 采样 30 帧以上的中位亮度落在目标时间段 |
 | 5 | 写时间轴 | `templates/timeline.example.js`，切点写 `at(beat)` | 抽 8–10 帧构图成立 |
 | 6 | 几何预检 | `probe_bbox.py` → `snap_cx.py` → `qc_scan.py` | 退出码 0 + 阴阳双对照都跑过 |
 | 7 | 渲染 | `--codec x264`（NVENC 常常不可用） | ffprobe 的帧数/时长/音轨与算值一致 |
@@ -89,6 +93,7 @@ visibility: public
 | 设计分镜/判断"这样够不够" | `docs/principles.md` — 十条手绘语法、递进三层、开工四条自检 |
 | 遇到"人被切没 / 转场十字 / 带宽失效 / 渲染报错" | `docs/pitfalls.md` — 每条带根因与判据 |
 | 第一次跑全流程 | `docs/pipeline.md` — 九阶段命令与闸门 |
+| **素材还没出，要先看整片是什么样** | `docs/previz-blockout.md` — 景别 k 值表、镜头空档延展、亮度中位判读、8 个色块场景模板 |
 
 ## 交付结构
 
@@ -109,8 +114,11 @@ visibility: public
 出图只在**角色母版**这一步花钱（15–30 积分量级），其余全部代码，0 积分。
 
 ```
-thesis → 音频实测 → timeline → stills 给人看 → 点头才渲全片
+thesis → 音频实测 → timeline → **整片色块预演给人看** → 点头才出素材 → 渲全片
 ```
+
+⛔ 预演之前不许批量出图。实测：一套 6 张首帧返工一次就是 60–90 积分，
+而整片色块预演是 0 积分、几十分钟，能提前暴露顺序和景别错误。
 
 ## 依赖
 
